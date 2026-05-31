@@ -1,0 +1,173 @@
+                                         Creating Data_base and Table 
+
+Data base creation 
+
+CREATE DATABASE bank_management_system;
+USE bank_management_system;
+
+#Bank
+CREATE TABLE bank
+(
+    bank_id INT PRIMARY KEY,
+    name VARCHAR(70),
+    full_address VARCHAR(200),
+    national VARCHAR(50),
+    contact VARCHAR(15)
+);
+
+
+INSERT INTO bank VALUES
+(1,'State Bank of India','Delhi','India','9876543210'),
+(2,'HDFC Bank','Mumbai','India','9123456780'),
+(3,'ICICI Bank','Bangalore','India','9988776655');
+
+
+
+# Customer 
+CREATE TABLE customer
+(
+    customer_id INT PRIMARY KEY,
+    name VARCHAR(100),
+    address VARCHAR(200),
+    ckyc_id VARCHAR(20) UNIQUE
+);
+
+
+
+INSERT INTO customer
+(customer_id,name,address,ckyc_id)
+VALUES
+(113,'Vivek Sharma','Delhi','CKYC113'),
+(114,'Rohan Gupta','Noida','CKYC114'),
+(115,'Nitin Kumar','Gurgaon','CKYC115'),
+(116,'Anjali Verma','Faridabad','CKYC116'),
+(117,'Pankaj Singh','Delhi','CKYC117'),
+(118,'Sneha Kapoor','Noida','CKYC118'),
+(119,'Mohit Yadav','Gurgaon','CKYC119'),
+(120,'Priya Sharma','Delhi','CKYC120'),
+(121,'Aman Jain','Faridabad','CKYC121'),
+(122,'Kritika Gupta','Noida','CKYC122'),
+(123,'Deepak Kumar','Delhi','CKYC123'),
+(124,'Sakshi Verma','Gurgaon','CKYC124'),
+(125,'Rajat Singh','Delhi','CKYC125'),
+(126,'Neha Yadav','Noida','CKYC126'),
+(127,'Vikas Kumar','Faridabad','CKYC127'),
+(128,'Pooja Sharma','Delhi','CKYC128'),
+(129,'Harsh Gupta','Gurgaon','CKYC129'),
+(130,'Simran Kaur','Noida','CKYC130');
+
+
+# Employee 
+
+CREATE TABLE employee
+(
+    employee_id INT PRIMARY KEY,
+    employee_name VARCHAR(100),
+    employee_contact_number VARCHAR(15),
+    employee_gender VARCHAR(10),
+    employee_address VARCHAR(200),
+    bank_id INT,
+    manager_id INT,
+
+    FOREIGN KEY(bank_id)
+    REFERENCES bank(bank_id)
+);
+
+INSERT INTO employee
+(employee_id,employee_name,employee_contact_number,
+employee_gender,employee_address,bank_id,manager_id)
+VALUES
+(211,'Rakesh Kumar','9001112243','Male','Delhi',1,201),
+(212,'Aarti Sharma','9001112244','Female','Delhi',1,201),
+(213,'Manoj Gupta','9001112245','Male','Mumbai',2,203),
+(214,'Komal Singh','9001112246','Female','Mumbai',2,203),
+(215,'Ajay Verma','9001112247','Male','Bangalore',3,205),
+(216,'Shreya Kapoor','9001112248','Female','Bangalore',3,205),
+(217,'Ravi Yadav','9001112249','Male','Delhi',1,202),
+(218,'Nisha Gupta','9001112250','Female','Mumbai',2,204),
+(219,'Tarun Jain','9001112251','Male','Bangalore',3,206),
+(220,'Mansi Verma','9001112252','Female','Delhi',1,202);
+
+
+# Bank Account 
+
+CREATE TABLE bank_account
+(
+    account_no VARCHAR(15) PRIMARY KEY,
+    account_type VARCHAR(20),
+    balance DECIMAL(10,2),
+
+    bank_id INT,
+    customer_id INT,
+
+    FOREIGN KEY(bank_id)
+    REFERENCES bank(bank_id),
+
+    FOREIGN KEY(customer_id)
+    REFERENCES customer(customer_id)
+);
+
+INSERT INTO bank_account
+(account_no,account_type,balance,bank_id,customer_id)
+VALUES
+('325','Savings',65000,1,113),
+('326','Current',18000,1,114),
+('327','Savings',42000,1,115),
+('328','Savings',52000,2,116),
+('329','Current',27000,2,117),
+('330','Savings',33000,2,118),
+('331','Savings',71000,3,119),
+('332','Current',14000,3,120),
+('333','Savings',56000,3,121),
+('334','Savings',25000,1,122),
+('335','Current',45000,2,123),
+('336','Savings',31000,3,124),
+('337','Savings',65000,1,125),
+('338','Current',22000,2,126),
+('339','Savings',48000,3,127),
+('340','Savings',29000,1,128),
+('341','Current',38000,2,129),
+('342','Savings',61000,3,130);
+
+
+# Transaction 
+
+CREATE TABLE bank_transaction
+(
+    transaction_id INT PRIMARY KEY,
+
+    transaction_time DATETIME,
+
+    amount DECIMAL(10,2),
+
+    account_no VARCHAR(15),
+
+    FOREIGN KEY(account_no)
+    REFERENCES bank_account(account_no)
+);
+
+
+INSERT INTO transaction
+(transaction_id,transaction_time,amount,account_no)
+VALUES
+(413,'2025-03-01 10:15:00',2500,'325'),
+(414,'2025-03-02 11:20:00',7000,'326'),
+(415,'2025-03-03 09:10:00',12000,'327'),
+(416,'2025-03-04 13:45:00',3500,'328'),
+(417,'2025-03-05 15:00:00',8500,'329'),
+(418,'2025-03-06 12:20:00',4500,'330'),
+(419,'2025-03-07 16:30:00',15000,'331'),
+(420,'2025-03-08 14:10:00',2000,'332'),
+(421,'2025-03-09 10:00:00',9500,'333'),
+(422,'2025-03-10 11:45:00',3000,'334'),
+(423,'2025-03-11 09:50:00',17000,'335'),
+(424,'2025-03-12 13:25:00',6000,'336'),
+(425,'2025-03-13 15:40:00',22000,'337'),
+(426,'2025-03-14 12:15:00',4000,'338'),
+(427,'2025-03-15 16:10:00',8000,'339'),
+(428,'2025-03-16 10:30:00',5000,'340'),
+(429,'2025-03-17 11:55:00',13000,'341'),
+(430,'2025-03-18 14:45:00',9000,'342');
+
+
+ 
