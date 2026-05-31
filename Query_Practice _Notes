@@ -1,0 +1,357 @@
+# SQL Bank Management System - Query Practice Notes
+
+# Topics Covered
+
+* SELECT
+* WHERE
+* ORDER BY
+* LIMIT
+* INNER JOIN
+* LEFT JOIN
+* RIGHT JOIN
+* SELF JOIN
+* GROUP BY
+* HAVING
+* CASE WHEN
+* Aggregate Functions
+* Subqueries
+* CTE (Common Table Expression)
+* Window Functions
+* Stored Procedures
+
+
+QUESTION 1
+Show all customers with their account details.
+
+Answer:
+
+SELECT c.*, a.*
+FROM bank_account AS a
+LEFT JOIN customer AS c
+ON a.customer_id = c.customer_id;
+
+
+QUESTION 2
+Show all accounts with bank name.
+
+Answer:
+
+SELECT ba.*, b.name
+FROM bank_account AS ba
+LEFT JOIN bank AS b
+ON ba.bank_id = b.bank_id;
+
+
+QUESTION 3
+Show all transactions with account_id and amount.
+
+Answer:
+
+SELECT account_no,
+amount,
+transaction_id
+FROM transaction;
+
+
+QUESTION 4
+Show total balance of each bank and bank name.
+
+Answer:
+
+SELECT ba.bank_id,
+b.name,
+SUM(ba.balance)
+FROM bank_account AS ba
+LEFT JOIN bank AS b
+ON ba.bank_id = b.bank_id
+GROUP BY ba.bank_id;
+
+QUESTION 5
+Find top 3 accounts having highest balance.
+
+Answer:
+
+SELECT *
+FROM bank_account
+ORDER BY balance DESC
+LIMIT 3;
+
+---
+
+QUESTION 6
+Find customer name with highest account balance.
+
+Answer:
+
+SELECT ba.account_no,
+c.name,
+ba.balance
+FROM bank_account AS ba
+JOIN customer AS c
+ON ba.customer_id = c.customer_id
+ORDER BY ba.balance DESC
+LIMIT 1;
+
+---
+
+QUESTION 7
+Only show customers who made transactions.
+
+Answer:
+
+SELECT c.name,
+t.transaction_id,
+t.amount,
+t.transaction_time
+FROM transaction AS t
+INNER JOIN bank_account AS ba
+ON t.account_no = ba.account_no
+INNER JOIN customer AS c
+ON ba.customer_id = c.customer_id;
+
+---
+
+QUESTION 8
+Show customer name, account number, balance, bank name.
+Include all bank accounts even if customer details are missing.
+
+Answer:
+
+SELECT c.name,
+ba.account_no,
+ba.balance,
+b.name
+FROM bank_account AS ba
+RIGHT JOIN customer AS c
+ON ba.customer_id = c.customer_id
+RIGHT JOIN bank AS b
+ON ba.bank_id = b.bank_id;
+
+---
+
+QUESTION 9
+Balance Categorization using CASE WHEN.
+
+Show:
+
+* Customer Name
+* Account Number
+* Balance
+* Balance Category
+
+Answer:
+
+SELECT ba.account_no,
+c.name,
+ba.balance,
+
+CASE
+WHEN balance > 40000 THEN 'High'
+WHEN balance BETWEEN 20000 AND 40000 THEN 'Medium Balance'
+ELSE 'Low'
+END AS Balance_category
+
+FROM bank_account AS ba
+LEFT JOIN customer AS c
+ON ba.customer_id = c.customer_id;
+
+---
+
+QUESTION 10
+Transaction Categorization using CASE.
+
+Answer:
+
+SELECT transaction_id,
+amount,
+
+CASE
+WHEN amount > 5000 THEN 'High Transaction'
+ELSE 'Normal Transaction'
+END AS Transaction_type
+
+FROM transaction;
+
+---
+
+QUESTION 11
+VIP Customers using CTE.
+
+Answer:
+
+WITH vip AS
+(
+SELECT c.customer_id,
+c.name,
+SUM(t.amount) AS amt
+
+FROM customer AS c
+
+INNER JOIN bank_account AS ba
+ON c.customer_id = ba.customer_id
+
+INNER JOIN transaction AS t
+ON ba.account_no = t.account_no
+
+GROUP BY c.customer_id, t.account_no
+)
+
+SELECT *
+FROM vip
+WHERE amt > 5500;
+
+---
+
+QUESTION 12
+Show bank name and total balance.
+Only show banks whose balance is greater than average bank balance.
+
+Answer:
+
+WITH bank_name AS
+(
+SELECT b.name,
+SUM(ba.balance) AS bank_amount
+
+FROM bank AS b
+
+INNER JOIN bank_account AS ba
+ON b.bank_id = ba.bank_id
+
+GROUP BY b.name, b.bank_id
+),
+
+avg_balance AS
+(
+SELECT AVG(bank_amount) AS avg_bank_balance
+FROM bank_name
+)
+
+SELECT bn.*
+FROM bank_name AS bn
+CROSS JOIN avg_balance AS ab
+WHERE bn.bank_amount > ab.avg_bank_balance;
+
+---
+
+QUESTION 13
+Show:
+
+* Bank Name
+* Total Customers
+* Total Balance
+
+Only display banks where total customers are greater than average customers per bank.
+
+Answer:
+
+WITH bank_detail AS
+(
+SELECT b.name AS bank_name,
+SUM(ba.balance) AS Total_balance,
+COUNT(ba.account_no) AS total_customer
+
+FROM bank AS b
+
+INNER JOIN bank_account AS ba
+ON b.bank_id = ba.bank_id
+
+GROUP BY b.name
+),
+
+avg_customer AS
+(
+SELECT AVG(total_customer)
+FROM bank_detail
+)
+
+SELECT *
+FROM bank_detail
+
+WHERE total_customer >=
+(
+SELECT *
+FROM avg_customer
+);
+
+---
+
+QUESTION 14
+Top 3 Sales by Region using Window Function.
+
+Answer:
+
+SELECT *
+FROM
+(
+SELECT sale_id,
+salesperson,
+region,
+amount,
+
+RANK() OVER
+(
+PARTITION BY region
+ORDER BY amount DESC
+) AS ranking
+
+FROM sales_data
+) AS rankk
+
+WHERE ranking <= 3;
+
+---
+
+QUESTION 15
+Running Total using Window Function.
+
+Answer:
+
+SELECT sale_id,
+salesperson,
+region,
+amount,
+
+SUM(amount) OVER
+(
+ORDER BY sale_date DESC
+) AS running_total
+
+FROM sales_data;
+
+---
+
+QUESTION 16
+Running Total (Standard Format)
+
+Answer:
+
+SELECT sale_date,
+amount,
+
+SUM(amount) OVER
+(
+ORDER BY sale_date
+) AS running_total
+
+FROM sales_data;
+
+---
+
+QUESTION 17
+Stored Procedure - Show Customers
+
+Answer:
+
+DELIMITER //
+
+CREATE PROCEDURE show_customer()
+
+BEGIN
+
+SELECT *
+FROM customer;
+
+END //
+
+DELIMITER ;
